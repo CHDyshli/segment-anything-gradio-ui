@@ -1,0 +1,4 @@
+gradio
+gradio_image_prompter
+opencv-python
+numpy
