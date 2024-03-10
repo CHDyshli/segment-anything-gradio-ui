@@ -8,5 +8,5 @@ A segment anything gradio ui, supports automatic and prompt modes. The prompt mo
 ## TODO
 - [ ] select differernt models
 - [ ] show image with masks
-- [ ] 
+- [ ] add some examples
 **There's so much to do. :flushed:**
