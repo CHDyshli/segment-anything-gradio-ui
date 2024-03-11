@@ -4,9 +4,11 @@ A segment anything gradio ui, supports automatic and prompt modes. The prompt mo
 ## Installation
 * Install **Segment Anything** following official [tutorial](https://github.com/facebookresearch/segment-anything?tab=readme-ov-file#installation)
 * `pip install -r requirements`
+* Download the SAM checkpoints from links: [ViT-H SAM model](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth), [ViT-L SAM model](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth),[ViT-B SAM model](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth). Put the checkpoints to directory `models`.
 
 ## TODO
 - [ ] select differernt models
 - [ ] show image with masks
 - [ ] add some examples
-**There's so much to do. :flushed:**
+  
+**There's so much to do. :flushed: so busy :sob:**
