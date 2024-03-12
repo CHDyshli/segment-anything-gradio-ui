@@ -1,5 +1,11 @@
 # segment-anything-gradio-ui
-A segment anything gradio ui, supports automatic and prompt modes. The prompt mode is based on [gradio-image-prompter](https://github.com/PhyscalX/gradio-image-prompter).
+A segment anything gradio ui, supports automatic and prompt modes(point or box prompt). The prompt mode is based on [gradio-image-prompter](https://github.com/PhyscalX/gradio-image-prompter).
+
+## auto mode
+![alt text](test/auto_mode.png)
+
+## prompt mode
+![alt text](test/prompt_mode.png)
 
 ## Installation
 * Install **Segment Anything** following official [tutorial](https://github.com/facebookresearch/segment-anything?tab=readme-ov-file#installation)
@@ -9,6 +15,6 @@ A segment anything gradio ui, supports automatic and prompt modes. The prompt mo
 ## TODO
 - [ ] select differernt models
 - [ ] show image with masks
-- [ ] add some examples
+- [x] add some examples
   
 **There's so much to do. :flushed: so busy :sob:**

@@ -10,7 +10,7 @@ import torch
 title = "a SAM gradio demo"
 header = (
     "<div align='center'>"
-    "<h1>SAM gradio app</h1>"
+    "<h1>SAM gradio app(a demo)</h1>"
     "</div>"
 )
 theme = "soft"
@@ -18,23 +18,6 @@ css = """#anno-img .mask {opacity: 0.5; transition: all 0.2s ease-in-out;}
             #anno-img .mask.active {opacity: 0.7}"""
 
 
-# test_image = "./assets/app_image1.jpg"
-# sam_checkpoint = "./models/sam_vit_b_01ec64.pth"
-# model_type = "vit_b"
-# device = "cuda"
-
-# sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
-# sam.to(device=device)
-# mask_generator = SamAutomaticMaskGenerator(sam)
-
-# masks = mask_generator.generate(image)
-
-# sam_checkpoint = "./models/sam_vit_b_01ec64.pth"
-# model_type = "vit_b"
-# device = "cuda"
-# sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
-# sam.to(device=device)
-# mask_generator = SamAutomaticMaskGenerator(sam)
 
 def get_added_image(masks:list, image:np.ndarray):
     if len(masks)==0:
@@ -101,6 +84,13 @@ def on_auto_test_btn(auto_input_img):
 
 def on_click_reset_btn():
     return None, None
+
+
+examples = [["examples/chang'an univ.png"], ["examples/chd_weishui1.jpg"], ["examples/chd_weishui2.jpg"]]
+click_examples = [{"image":"examples/chang'an univ.png"}, 
+                  {"image":"examples/chd_weishui1.jpg"}, 
+                  {"image":"examples/chd_weishui2.jpg"}] 
+
 with gr.Blocks(title=title, theme=theme, css=css) as demo:
     gr.Markdown(header)
 
@@ -127,22 +117,25 @@ with gr.Blocks(title=title, theme=theme, css=css) as demo:
                 with gr.Row():
                     auto_clr_btn=gr.ClearButton(components=[auto_input_img, auto_output_img])
                     auto_submit_btn = gr.Button("Submit")
-                auto_output_txtbox = gr.Textbox(label="test Output", placeholder="测试一些数据")
-                #test button
-                # auto_test_btn = gr.Button("Test")
+               
                 auto_submit_btn.click(
                     fn=on_auto_submit_btn,
                     inputs=[auto_input_img],
                     outputs=[auto_output_img]
                 )
 
-                # auto_test_btn.click(
-                #     fn=on_auto_test_btn,
-                #     inputs=[auto_input_img],
-                #     outputs=[auto_output_txtbox]
-                # )
+                with gr.Row():
+                    gr.Examples(examples=examples,
+                                inputs=[auto_input_img],
+                                # outputs=[auto_output_img],
+                                # fn=segment_everything,
+                                # cache_examples=True,
+                                examples_per_page=3
+                                )
 
-            with gr.Tab("Point+Box") as click_tab:
+              
+
+            with gr.Tab("Box") as click_tab:
                 with gr.Row():
                     click_input_img = gr_ext.ImagePrompter(
                         show_label=True,
@@ -164,16 +157,20 @@ with gr.Blocks(title=title, theme=theme, css=css) as demo:
                     click_clr_btn=gr.ClearButton(components=[click_input_img, click_output_img])
                     # click_reset_btn = gr.Button("Clear")
                     click_submit_btn = gr.Button("Submit")
-                # click_output_txtbox = gr.Textbox(label="test Output", placeholder="测试一些数据")
-                # click_output_dataframe_all_points = gr.DataFrame(label="all points")
-                # click_output_dataframe_positvite = gr.DataFrame(label="posivite points")
-                # click_output_dataframe_negative = gr.DataFrame(label="negative points")
-                # click_output_dataframe_box = gr.DataFrame(label="box points")
+                
                 click_submit_btn.click(
                     fn=on_click_submit_btn,
                     inputs=[click_input_img],
                     outputs=[click_output_img]
                 )
+                with gr.Row():
+                    gr.Examples(examples=click_examples,
+                                inputs=[click_input_img],
+                                # outputs=[auto_output_img],
+                                # fn=segment_everything,
+                                # cache_examples=True,
+                                examples_per_page=3
+                                )
     
 
 

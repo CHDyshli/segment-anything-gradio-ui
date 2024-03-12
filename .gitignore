@@ -1,3 +1,6 @@
 # dir
 models/*
 !models/.gitkeep
+
+# cache
+__pycache__/*
