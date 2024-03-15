@@ -13,6 +13,7 @@ A segment anything gradio ui, supports automatic and prompt modes(point or box p
 * Download the SAM checkpoints from links: [ViT-H SAM model](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth), [ViT-L SAM model](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth),[ViT-B SAM model](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth). Put the checkpoints to directory `models`.
 
 ## TODO
+- [ ] point prompts
 - [ ] batch prompts
 - [ ] select differernt models
 - [ ] show image with masks
