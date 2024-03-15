@@ -1,6 +1,6 @@
 import gradio as gr
 import gradio_image_prompter as gr_ext
-import os
+# import os
 from segment_anything import SamPredictor, sam_model_registry, SamAutomaticMaskGenerator
 import numpy as np
 import torch
