@@ -18,6 +18,8 @@ css = """#anno-img .mask {opacity: 0.5; transition: all 0.2s ease-in-out;}
             #anno-img .mask.active {opacity: 0.7}"""
 
 
+# sam_checkpoint
+
 
 def get_added_image(masks:list, image:np.ndarray):
     if len(masks)==0:
@@ -31,9 +33,9 @@ def get_added_image(masks:list, image:np.ndarray):
     added_img = image /255* 0.5 + mask_all*0.5
     return added_img
 
-def on_auto_submit_btn(auto_input_img):
-    sam_checkpoint = "./models/sam_vit_b_01ec64.pth"
-    model_type = "vit_b"
+def on_auto_submit_btn(auto_input_img, model_type):
+    model_type = model_type
+    sam_checkpoint = type2checkpoint(model_type)
     device = "cuda"
     sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
     sam.to(device=device)
@@ -44,11 +46,10 @@ def on_auto_submit_btn(auto_input_img):
 
 
 
-def on_click_submit_btn(click_input_img):
-
+def on_click_submit_btn(click_input_img, model_type):
     # set sam
-    sam_checkpoint = "./models/sam_vit_b_01ec64.pth"
-    model_type = "vit_b"
+    model_type = model_type
+    sam_checkpoint = type2checkpoint(model_type)
     device = "cuda"
     sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
     sam.to(device=device)
@@ -91,9 +92,30 @@ click_examples = [{"image":"examples/chang'an univ.png"},
                   {"image":"examples/chd_weishui1.jpg"}, 
                   {"image":"examples/chd_weishui2.jpg"}] 
 
+def type2checkpoint(model_type:str):
+    return {
+        "vit_b": "./models/sam_vit_b_01ec64.pth",
+        "vit_l": "./models/sam_vit_l_0b3195.pth",
+        "vit_h": "./models/sam_vit_h_4b8939.pth"
+    }[model_type]
+# type_checkpoint = {
+#     "vit_b": "./models/vit_b_01ec64.pth",
+#     "vit_l": "./models/vit_l_0b3195.pth",
+#     "vit_h": "./models/vit_h_4b8939.pth"
+# }
+
 with gr.Blocks(title=title, theme=theme, css=css) as demo:
     gr.Markdown(header)
 
+    with gr.Row():
+        model_type = gr.Dropdown(choices=["vit_b", "vit_l", "vit_h"], 
+                                label="Seclect Model", 
+                                value="vit_b", 
+                                multiselect=False,
+                                interactive=True,
+                                allow_custom_value=False,
+                                filterable=False,
+                                )
     with gr.Row():
         with gr.Column():
 
@@ -109,8 +131,8 @@ with gr.Blocks(title=title, theme=theme, css=css) as demo:
                     auto_output_img = gr.Image(
                         label="Output Image", 
                         interactive=False, 
-                        height=400, 
-                        width=500, 
+                        # height=400, 
+                        # width=500, 
                         show_label=True,
                         show_download_button=True
                         )
@@ -120,7 +142,7 @@ with gr.Blocks(title=title, theme=theme, css=css) as demo:
                
                 auto_submit_btn.click(
                     fn=on_auto_submit_btn,
-                    inputs=[auto_input_img],
+                    inputs=[auto_input_img, model_type],
                     outputs=[auto_output_img]
                 )
 
@@ -160,7 +182,7 @@ with gr.Blocks(title=title, theme=theme, css=css) as demo:
                 
                 click_submit_btn.click(
                     fn=on_click_submit_btn,
-                    inputs=[click_input_img],
+                    inputs=[click_input_img, model_type],
                     outputs=[click_output_img]
                 )
                 with gr.Row():
