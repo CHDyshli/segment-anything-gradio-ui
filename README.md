@@ -15,7 +15,7 @@ A segment anything gradio ui, supports automatic and prompt modes(point or box p
 ## TODO
 - [ ] point prompts
 - [ ] batch prompts
-- [ ] select differernt models
+- [x] select differernt models
 - [ ] show image with masks
 - [x] add some examples
   
