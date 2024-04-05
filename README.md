@@ -20,4 +20,3 @@ A segment anything gradio ui, supports automatic and prompt modes(point or box p
 - [x] add some examples
 - [ ] support mobile SAM
   
-**There's so much to do. :flushed: so busy :sob:**
