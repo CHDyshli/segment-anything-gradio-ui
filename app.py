@@ -4,13 +4,13 @@ import gradio_image_prompter as gr_ext
 from segment_anything import SamPredictor, sam_model_registry, SamAutomaticMaskGenerator
 import numpy as np
 import torch
+import gc
 
 
-
-title = "a SAM gradio demo"
+title = "Segment Anything Model (SAM) Demo with Gradio"
 header = (
     "<div align='center'>"
-    "<h1>SAM gradio app(a demo)</h1>"
+    "<h1>Segment Anything Model (SAM) Demo with Gradio</h1>"
     "</div>"
 )
 theme = "soft"
@@ -70,15 +70,44 @@ def on_click_submit_btn(click_input_img, model_type):
     input_boxes = torch.tensor(box_points).to(device=predictor.device)
     transformed_boxes = predictor.transform.apply_boxes_torch(input_boxes, click_input_img['image'].shape[:2])
     masks, _, _ = predictor.predict_torch(
-    point_coords=None,
-    point_labels=None,
-    boxes=transformed_boxes,
-    multimask_output=False,
+        point_coords=None,
+        point_labels=None,
+        boxes=transformed_boxes,
+        multimask_output=False,
     )
-    mask = masks[0].cpu().numpy().squeeze().astype(np.uint8)*255
+    #mask = masks[0].cpu().numpy().squeeze().astype(np.uint8)*255
+    masks = masks.cpu().detach().numpy()
+    
+    # Origin+mask
+    mask_all = np.ones((click_input_img['image'].shape[0], click_input_img['image'].shape[1], 3))
+    for ann in masks:
+        color_mask = np.random.random((1, 3)).tolist()[0]
+        for i in range(3):
+            mask_all[ann[0] == True, i] = color_mask[i]
+    
+    img = click_input_img['image'] / 255 * 0.3 + mask_all * 0.7
+    
+    gc.collect()
+    torch.cuda.empty_cache()
 
+    # Segmented Image
+    segmented_image = np.zeros((click_input_img['image'].shape[0], click_input_img['image'].shape[1], 4), dtype=np.uint8)
+    for ann in masks:
+        mask = ann[0]  # Extract the mask
+        for i in range(3):
+            segmented_image[:, :, i][mask == True] = click_input_img['image'][:, :, i][mask == True]
+        segmented_image[:, :, 3][mask == True] = 255  # Set alpha channel to 255 for mask region
 
-    return mask
+    # Cut-Out Image, Calculate bounding box, Cut image to the bounding box
+    y_indices, x_indices = np.where(segmented_image[:, :, 3] == 255)
+    if len(y_indices) == 0 or len(x_indices) == 0:
+        raise ValueError("No objects found in the image")
+    
+    y_min, y_max = y_indices.min(), y_indices.max()
+    x_min, x_max = x_indices.min(), x_indices.max()
+    cutout_image = segmented_image[y_min:y_max + 1, x_min:x_max + 1]
+ 
+    return img, mask_all, segmented_image, cutout_image
 
 def on_auto_test_btn(auto_input_img):
     return auto_input_img.shape
@@ -167,23 +196,51 @@ with gr.Blocks(title=title, theme=theme, css=css) as demo:
                         interactive=True,
                         sources='upload'
                     )
-                    click_output_img = gr.Image(
-                        show_label=True,
-                        label="Output Image", 
-                        interactive=False, 
-                        # height=400, 
-                        # width=500,
-                        show_download_button=True
-                        )
+                    with gr.Tab("Image+Mask"):
+                        output_img_mask = gr.Image(
+                            show_label=True,
+                            label="Origin+Mask Image", 
+                            interactive=False, 
+                            # height=400, 
+                            # width=500,
+                            show_download_button=True
+                            )
+                    with gr.Tab("Mask"):
+                        output_mask = gr.Image(
+                            show_label=True,
+                            label="Mask Image", 
+                            interactive=False, 
+                            # height=400, 
+                            # width=500,
+                            show_download_button=True
+                            )
+                    with gr.Tab("Segmented Image"):
+                        output_seg_img = gr.Image(
+                            show_label=True,
+                            label="Object Image", 
+                            interactive=False, 
+                            # height=400, 
+                            # width=500,
+                            show_download_button=True
+                            )
+                    with gr.Tab("Cut-Out Image"):
+                        output_cutout_img = gr.Image(
+                            show_label=True,
+                            label="Cut-Out Image", 
+                            interactive=False, 
+                            # height=400, 
+                            # width=500,
+                            show_download_button=True
+                            )
                 with gr.Row():
-                    click_clr_btn=gr.ClearButton(components=[click_input_img, click_output_img])
+                    click_clr_btn=gr.ClearButton(components=[click_input_img, output_img_mask, output_mask, output_seg_img, output_cutout_img])
                     # click_reset_btn = gr.Button("Clear")
                     click_submit_btn = gr.Button("Submit")
                 
                 click_submit_btn.click(
                     fn=on_click_submit_btn,
                     inputs=[click_input_img, model_type],
-                    outputs=[click_output_img]
+                    outputs=[output_img_mask, output_mask, output_seg_img, output_cutout_img]
                 )
                 with gr.Row():
                     gr.Examples(examples=click_examples,
@@ -194,12 +251,6 @@ with gr.Blocks(title=title, theme=theme, css=css) as demo:
                                 examples_per_page=3
                                 )
     
-
-
-                
-                
-
-        
 
 
 if __name__ == "__main__":
